@@ -1,0 +1,29 @@
+{
+  "name": "chat-interno-local",
+  "version": "1.0.0",
+  "description": "Chat interno local para unidade pública",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "nodemon server/index.js",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "sqlite3": "^5.1.6",
+    "multer": "^1.4.5-lts.1",
+    "express-session": "^1.17.3",
+    "bcrypt": "^5.1.0",
+    "ejs": "^3.1.9",
+    "cookie-parser": "^1.4.6",
+    "connect-sqlite3": "^0.9.13",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["chat", "intranet", "local"],
+  "author": "",
+  "license": "MIT"
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat Interno</title>
+  <link rel="stylesheet" href="/style.css">
+  <script>
+    window.CURRENT_USER = { id: <%= user.id %>, name: "<%= user.name %>" };
+  </script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="user-info">
+        <span><%= user.name %></span>
+        <button id="logout-btn">Sair</button>
+        <% if (user.role === 'admin') { %>
+          <a href="/admin">Admin</a>
+        <% } %>
+      </div>
+      <div class="search">
+        <input type="text" placeholder="Buscar conversas..." id="search-input">
+      </div>
+      <div class="support">
+        <button id="support-btn">💬 Suporte</button>
+      </div>
+      <div class="users">
+        <h3>Usuários</h3>
+        <ul id="user-list"></ul>
+      </div>
+      <div class="conversations">
+        <h3>Conversas</h3>
+        <ul id="conversation-list"></ul>
+      </div>
+    </aside>
+    <main class="main">
+      <div id="chat-header"></div>
+      <div id="messages" class="messages"></div>
+      <div class="input-area">
+        <textarea id="message-input" placeholder="Digite uma mensagem..." rows="1"></textarea>
+        <input type="file" id="file-input" style="display:none;">
+        <button id="attach-btn">📎</button>
+        <button id="send-btn">➤</button>
+      </div>
+    </main>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

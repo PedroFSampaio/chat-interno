@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Chat Interno</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="login-container">
+    <h1>Chat Interno</h1>
+    <form action="/login" method="POST">
+      <input type="text" name="username" placeholder="Usuário" required>
+      <input type="password" name="password" placeholder="Senha" required>
+      <button type="submit">Entrar</button>
+      <% if (locals.errorMessage) { %>
+        <p class="error"><%= locals.errorMessage %></p>
+      <% } %>
+    </form>
+  </div>
+</body>
+</html>

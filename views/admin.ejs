@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Painel Admin - Chat Interno</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="admin-container">
+    <h1>Painel Administrativo</h1>
+    <a href="/">Voltar ao Chat</a>
+    <h2>Usuários</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Usuário</th>
+          <th>Função</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach(user => { %>
+          <tr>
+            <td><%= user.name %></td>
+            <td><%= user.username %></td>
+            <td>
+              <form action="/admin/users/<%= user.id %>/role" method="POST" style="display:inline;">
+                <select name="role" onchange="this.form.submit()">
+                  <option value="user" <%= user.role === 'user' ? 'selected' : '' %>>Usuário</option>
+                  <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                </select>
+              </form>
+            </td>
+            <td>
+              <form action="/admin/users/<%= user.id %>/reset" method="POST" style="display:inline;">
+                <button type="submit">Reset Senha</button>
+              </form>
+              <% if (user.role !== 'admin') { %>
+                <form action="/admin/users/<%= user.id %>/delete" method="POST" style="display:inline;">
+                  <button type="submit" onclick="return confirm('Tem certeza?')">Deletar</button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+    <h2>Criar Usuário</h2>
+    <form action="/admin/users" method="POST">
+      <input type="text" name="name" placeholder="Nome" required>
+      <input type="text" name="username" placeholder="Usuário" required>
+      <input type="password" name="password" placeholder="Senha" required>
+      <select name="role">
+        <option value="user">Usuário</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button type="submit">Criar</button>
+    </form>
+    <% if (locals.errorMessage) { %>
+      <p class="error"><%= locals.errorMessage %></p>
+    <% } %>
+  </div>
+</body>
+</html>
