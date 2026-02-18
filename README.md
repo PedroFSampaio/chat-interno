@@ -18,7 +18,7 @@ Um sistema de chat interno simples e local para unidades públicas, focado em si
 - Desenvolvimento: `npm run dev`
 - Produção: `npm start`
 
-O servidor roda em `http://localhost:3000` (ou IP do servidor na rede local).
+O servidor roda em `http://localhost:3004` (ou IP do servidor na rede local).
 
 ## Acesso na Rede Local
 
