@@ -26,9 +26,6 @@ Para acessar de outros computadores na mesma rede:
 - Descubra o IP do servidor (ex: `ipconfig` no Windows).
 - Acesse `http://IP_DO_SERVIDOR:3000` nos navegadores dos outros PCs.
 
-## Criar Admin Inicial
-
-Configure `ADMIN_USER` e `ADMIN_PASS` no `.env` antes do primeiro start. O admin é criado automaticamente.
 
 ## Funcionalidades
 
