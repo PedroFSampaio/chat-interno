@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  chat-interno:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./chat.db:/app/chat.db
+      - ./uploads:/app/uploads
+      - ./server/sessions.db:/app/server/sessions.db
+    environment:
+      - PORT=3000
+      - SESSION_SECRET=your_secret_key
+      - ADMIN_USER=admin
+      - ADMIN_PASS=admin123
