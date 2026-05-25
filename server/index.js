@@ -23,7 +23,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
-  store: new SQLiteStore({ db: 'sessions.db', dir: __dirname }),
+  store: new SQLiteStore({ 
+    db: process.env.SESSIONS_DB_PATH ? path.basename(process.env.SESSIONS_DB_PATH) : 'sessions.db', 
+    dir: process.env.SESSIONS_DB_PATH ? path.dirname(process.env.SESSIONS_DB_PATH) : path.join(__dirname, '..', 'data') 
+  }),
   secret: process.env.SESSION_SECRET || 'secret',
   resave: false,
   saveUninitialized: false,
@@ -51,7 +54,10 @@ app.get('/', (req, res) => {
 io.use((socket, next) => {
   // Wrap session middleware for Socket.IO
   const sessionMiddleware = session({
-    store: new SQLiteStore({ db: 'sessions.db', dir: __dirname }),
+    store: new SQLiteStore({ 
+    db: process.env.SESSIONS_DB_PATH ? path.basename(process.env.SESSIONS_DB_PATH) : 'sessions.db', 
+    dir: process.env.SESSIONS_DB_PATH ? path.dirname(process.env.SESSIONS_DB_PATH) : path.join(__dirname, '..', 'data') 
+  }),
     secret: process.env.SESSION_SECRET || 'secret',
     resave: false,
     saveUninitialized: false,
