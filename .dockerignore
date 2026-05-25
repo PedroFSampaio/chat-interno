@@ -1,0 +1,8 @@
+node_modules
+npm-debug.log
+.git
+.env
+data
+uploads
+chat.db
+server/sessions.db
