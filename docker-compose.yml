@@ -3,8 +3,13 @@ version: '3.8'
 services:
   chat-interno:
     build: .
+    container_name: chat-interno
+    restart: unless-stopped
     ports:
       - "3000:3000"
+    networks:
+      lan:
+        ipv4_address: 172.20.0.15
     volumes:
       - ./chat.db:/app/chat.db
       - ./uploads:/app/uploads
@@ -14,3 +19,7 @@ services:
       - SESSION_SECRET=your_secret_key
       - ADMIN_USER=admin
       - ADMIN_PASS=admin123
+
+networks:
+  lan:
+    external: true
