@@ -5,8 +5,6 @@ services:
     build: .
     container_name: chat-interno
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     networks:
       lan:
         ipv4_address: 172.20.0.15
