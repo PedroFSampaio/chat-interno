@@ -9,8 +9,8 @@ services:
       lan:
         ipv4_address: 172.20.0.15
     volumes:
-      - ./data:/app/data
-      - ./uploads:/app/uploads
+      - chat-data:/app/data
+      - chat-uploads:/app/uploads
     environment:
       - PORT=3000
       - SESSION_SECRET=your_secret_key
@@ -22,3 +22,7 @@ services:
 networks:
   lan:
     external: true
+
+volumes:
+  chat-data:
+  chat-uploads:
