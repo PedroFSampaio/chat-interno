@@ -101,6 +101,13 @@ async function openOrCreateConversation(otherUserId, name) {
 // Open conversation
 async function openConversation(id, name) {
   currentConversationId = id;
+  // reset unread for this conversation locally
+  const conv = conversations.find(c => c.id == id);
+  if (conv) {
+    conv.unread = 0;
+    renderConversationList();
+    updateDocumentBadge();
+  }
   document.getElementById('chat-header').textContent = name;
   socket.emit('joinConversation', id);
   socket.emit('markAsRead', id); // Mark as read
@@ -213,6 +220,29 @@ socket.on('message:new', (data) => {
   }
   // Update conversation list
   loadConversations();
+  // Notification / badge / title handling
+  try {
+    const isHidden = document.hidden;
+    const hasFocus = document.hasFocus && document.hasFocus();
+    const isNotVisible = isHidden || !hasFocus;
+    const conv = conversations.find(c => c.id == conversationId);
+    if (conv) conv.unread = (conv.unread || 0) + (conversationId == currentConversationId ? 0 : 1);
+    renderConversationList();
+    updateDocumentBadge();
+    // Desktop notification
+    if (conversationId != currentConversationId && isNotVisible) {
+      if (Notification.permission === 'granted') {
+        new Notification(`Nova mensagem de ${message.sender_name}`, { body: message.content || message.file_name });
+      }
+      playBeep();
+      startTitleBlink(message.sender_name || 'Nova mensagem');
+    } else if (conversationId != currentConversationId && !isHidden) {
+      // Play a subtle sound even when visible
+      playBeep();
+    }
+  } catch (e) {
+    console.error('[CLIENT] Notification handling error:', e);
+  }
 });
 
 socket.on('conversation:upsert', (conv) => {
@@ -224,22 +254,99 @@ socket.on('conversation:upsert', (conv) => {
     conversations.unshift(conv);
   }
   renderConversationList();
+  updateDocumentBadge();
 });
 
-// Notifications
+// Notifications utilities and visibility handling
 if ('Notification' in window) {
-  Notification.requestPermission();
+  Notification.requestPermission().catch(() => {});
 }
 
-socket.on('message:new', (data) => {
-  console.log('[CLIENT] Notification check for message:new:', data);
-  const { conversationId, message } = data;
-  if (conversationId != currentConversationId && document.hidden) {
-    if (Notification.permission === 'granted') {
-      new Notification(`Nova mensagem de ${message.sender_name}`, { body: message.content || message.file_name });
-    }
+let originalTitle = document.title;
+let titleBlinkInterval = null;
+let blinkCount = 0;
+
+function startTitleBlink(name) {
+  stopTitleBlink();
+  blinkCount = 0;
+  titleBlinkInterval = setInterval(() => {
+    document.title = (document.title === originalTitle) ? `(${++blinkCount}) ${name}` : originalTitle;
+  }, 1000);
+}
+
+function stopTitleBlink() {
+  if (titleBlinkInterval) {
+    clearInterval(titleBlinkInterval);
+    titleBlinkInterval = null;
+    document.title = originalTitle;
+  }
+}
+
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.value = 880;
+    o.connect(g);
+    g.connect(ctx.destination);
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.1, ctx.currentTime + 0.01);
+    o.start();
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+    setTimeout(() => { o.stop(); ctx.close(); }, 400);
+  } catch (e) {
+    console.warn('[CLIENT] beep failed:', e);
+  }
+}
+
+function updateDocumentBadge() {
+  const totalUnread = (conversations || []).reduce((s, c) => s + (c.unread || 0), 0);
+  if (totalUnread > 0) {
+    document.title = `(${totalUnread}) ` + originalTitle;
+    setAppBadge(totalUnread);
+  } else {
+    document.title = originalTitle;
+    clearAppBadge();
+  }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    // When user comes back, stop blinking and refresh conversations
+    stopTitleBlink();
+    loadConversations();
   }
 });
+
+// Window focus/blur to detect if user is outside the browser window
+window.addEventListener('focus', () => {
+  stopTitleBlink();
+  loadConversations();
+  clearAppBadge();
+});
+
+window.addEventListener('blur', () => {
+  // nothing for now; presence check happens on incoming messages
+});
+
+// Badging API helpers (optional, supported on some platforms/browsers)
+function setAppBadge(n) {
+  try {
+    if (navigator.setAppBadge) return navigator.setAppBadge(n);
+  } catch (e) {
+    console.warn('[CLIENT] setAppBadge failed:', e);
+  }
+}
+
+function clearAppBadge() {
+  try {
+    if (navigator.clearAppBadge) return navigator.clearAppBadge();
+  } catch (e) {
+    console.warn('[CLIENT] clearAppBadge failed:', e);
+  }
+}
 
 // Load on start
 loadConversations();
